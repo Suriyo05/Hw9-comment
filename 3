@@ -1,44 +1,45 @@
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Stack;
+import java.util.LinkedList;//ใช้สำหรับสร้าง adjacency list ซึ่งเก็บรายชื่อ vertex ที่เชื่อมต่อกับ vertex แต่ละตัว
+import java.util.Queue;//ใช้ในอัลกอริทึม Breadth-First Search (BFS) เพื่อเก็บ vertex ที่จะสำรวจ
+import java.util.Stack;//ใช้สำหรับเก็บเส้นทางที่สั้นที่สุดระหว่างสอง vertex
 
-@SuppressWarnings("unchecked") 
-public class Graph {
+@SuppressWarnings("unchecked") //คำสั่งนี้ใช้เพื่อปิดการแจ้งเตือนเกี่ยวกับการแปลงชนิดข้อมูลแบบไม่ตรวจสอบ ซึ่งอาจเกิดขึ้นเมื่อใช้งานกับ array ของ generic type
+public class Graph {//ประกาศคลาสสาธารณะชื่อ Graph
     
-    Vertex[] vertexList; // This list contain vertices
-    LinkedList<Integer>[] adjacencyList; // Graph implemented by Adjacency List
+    Vertex[] vertexList; // This list contain vertices ลิสต์นี้เก็บvertex
+    LinkedList<Integer>[] adjacencyList; // Graph implemented by Adjacency List กราฟที่สร้างโดยใช้Adjacency
     
-    int cap;
-    int size;
-    int cc;
+    int cap;//จำนวน vertex สูงสุดที่กราฟนี้สามารถเก็บได้
+    int size;//จำนวน vertex ปัจจุบันในกราฟ
+    int cc;//ตัวแปรนี้ไม่ได้ถูกใช้งานในโค้ดที่ให้มา อาจจะตั้งใจใช้เพื่อเก็บจำนวน connected components ในกราฟ แต่ไม่ได้มีการ implement ฟังก์ชันนี้
 
     public Graph(int cap){
         // Pls initialize all varibles here
-        this.cap = cap;
-        this.size = 0;
-        vertexList = new Vertex[cap];
+        this.cap = cap;//สร้างออบเจ็กต์ Graph ใหม่พร้อม capacity (cap) ที่กำหนด
+        this.size = 0;//กำหนดค่า size เริ่มต้นเป็น 0
+        vertexList = new Vertex[cap];//สร้าง array vertexList และ adjacencyList ตาม capacity ที่ระบุ
         adjacencyList = new LinkedList[cap];
     }
     
     public void addVertex(int key){
-        if (size==cap){
+        if (size==cap){//ตรวจสอบว่ากราฟเต็มหรือไม่ (size == cap) ถ้าเต็มจะพิมพ์ข้อความ error และ return
+
             System.out.println("Vertex list is full. You need to recreate the Graph");
             return;
         }
         
         // Create Vertex object and the LinkedList object
-        Vertex v = new Vertex(key);
+        Vertex v = new Vertex(key);//สร้างออบเจ็กต์ Vertex ใหม่ด้วย key ที่กำหนด
         // Add these objects to the corresponding arrays
-        vertexList[size] = v;
-        adjacencyList[size] = new LinkedList<Integer>();
+        vertexList[size] = v;//เพิ่ม Vertex ใหม่เข้าไปใน vertexList
+        adjacencyList[size] = new LinkedList<Integer>();//สร้าง LinkedList ใหม่ใน adjacencyList เพื่อเก็บ vertex ที่เชื่อมต่อกับ vertex ใหม่นี้
         // finally, size++;
-        size++;
+        size++;//เพิ่มค่า size ของกราฟ
     }
     
     // Two way edge
     // If you make a path from u to v, you must make a path from v to u
-    public void addEdge(int u, int v){
-        if (vertexList[u]==null){
+    public void addEdge(int u, int v){//เพิ่ม edge แบบไม่มีทิศทางระหว่าง vertex u และ v
+        if (vertexList[u]==null){//ตรวจสอบว่า vertex u และ v มีอยู่ในกราฟหรือไม่ ถ้าไม่มีจะพิมพ์ข้อความ error และ return
             System.out.println("Source node does not exist");
             return;
         } if (vertexList[v]==null){
@@ -47,19 +48,19 @@ public class Graph {
         }
         
         // Check if there is already an edge from u to v
-        if (!isConnected(u, v)){
+        if (!isConnected(u, v)){//เรียกใช้ isConnected(u, v) เพื่อตรวจสอบว่ามี edge เชื่อมต่อระหว่าง vertex ทั้งสองอยู่แล้วหรือไม่
             // Add edge from Vertex(u) to Vertex(v)
-            adjacencyList[u].add(v);
+            adjacencyList[u].add(v);//ถ้ายังไม่มี edge จะเพิ่ม v เข้าไปใน adjacency list ของ u และเพิ่ม u เข้าไปใน adjacency list ของ v เพื่อสร้าง edge แบบสองทาง
             // and then from Vertex(v) to Vertex(u)
             adjacencyList[v].add(u);
-        }else{
+        }else{//ถ้ามี edge อยู่แล้ว จะพิมพ์ข้อความแจ้ง
             System.out.println("There is already an edge connecting vertex "+u+" and vertex "+v);
         }
     }
     
     // Check if Vertex(u) and Vertex(v) has an edge to one another
-    public boolean isConnected(int u, int v){
-        return (adjacencyList[u].contains(v) && adjacencyList[v].contains(u)); // Fix this
+    public boolean isConnected(int u, int v){//ตรวจสอบว่ามี edge เชื่อมต่อระหว่าง vertex u และ v หรือไม่
+        return (adjacencyList[u].contains(v) && adjacencyList[v].contains(u)); // Fix this return true ถ้า adjacency list ของ u มี v และ adjacency list ของ v มี u ซึ่งหมายถึงมีการเชื่อมต่อแบบสองทาง
     }
 
     // This function is complete, no need to edit
@@ -67,10 +68,10 @@ public class Graph {
     // if you understand this function, you will undertand the whole homework
     public void showAdjacentVertices(int u){
         Vertex v = vertexList[u];
-        System.out.print("Vertex " + v.strKey + " connected to the following vertices: ");
+        System.out.print("Vertex " + v.strKey + " connected to the following vertices: ");//พิมพ์รายชื่อ vertex ที่เชื่อมต่อกับ vertex u
         
-        LinkedList<Integer> list = adjacencyList[u];
-        for (int vertex_index : list) {
+        LinkedList<Integer> list = adjacencyList[u];//ดึงออบเจ็กต์ Vertex และ adjacency list ที่ตรงกัน
+        for (int vertex_index : list) {//วน loop ผ่าน adjacency list และพิมพ์ strKey (น่าจะเป็น string ที่แทน key ของ vertex) ของ vertex ที่เชื่อมต่อกัน
             System.out.print(vertexList[vertex_index].strKey + ", ");
         }
         System.out.println();
@@ -79,13 +80,13 @@ public class Graph {
     public void BFS(Vertex s){
       // Set all Vertex.dist to Infinity (Use Integer.MAX_VALUE to represent Infinity)
       for(Vertex v : vertexList){
-            if(v != null)
+            if(v != null)//ตั้งค่าระยะทางของทุกจุดยอดเป็นค่าอนันต์ยกเว้นจุดยอดเริ่มต้น(s)ที่ตั้งค่าdistเป็น0
             v.dist = Integer.MAX_VALUE;
         }
       // Set dist of the start vertex (s) to 0
        s.dist = 0;
       // Push the start vertex to an empty queue
-      Queue<Vertex> q = new LinkedList<Vertex>();
+      Queue<Vertex> q = new LinkedList<Vertex>();//สร้างQueueเเละเพิ่มจุดยอดเริ่มต้นลงในคิว
       q.add(s);
       // [*] Check if the queue is not empty
       // Pop the queue, and get the current vertex
@@ -95,7 +96,7 @@ public class Graph {
       // If yes,  push that vertex into the queue
       //          increase the dist variable of that vertex by one
       //          set the prev variable of that vertex to the current vertex
-      while(!q.isEmpty()){
+      while(!q.isEmpty()){//ใช้ลูปเพื่อตรวจสอบว่าคิวไม่ว่าง จากนั้นดึงจุดยอดปัจจุบันออกจากคิวเเละหาอินเด็กซ์ของจุดยอดนี้น vertexList
             Vertex current = q.poll();
             int u = -1;
                 for (int i = 0; i < size; i++) {
@@ -105,7 +106,7 @@ public class Graph {
                     }
                 }
                 
-            for(int v : adjacencyList[u]){
+            for(int v : adjacencyList[u]){//สำหรับจุดยอดเพื่อนบ้านของจุดยอดปัจจุบัน หากยังไม่ได้ถูกเข้าถึง(ค่าdistเป็นinfinity)จะเพิ่มลงในคิว เเละอัพเดตระยะทางเเละตัวชี้กลับ(previous vertex)
                 if(vertexList[v].dist == Integer.MAX_VALUE){
                     q.add(vertexList[v]);
                     vertexList[v].dist = current.dist + 1;
@@ -117,50 +118,50 @@ public class Graph {
   }
 
   
-  public Stack getShortestPathList(Vertex S, Vertex U){
+  public Stack getShortestPathList(Vertex S, Vertex U){//ฟังก์ชันนี้จะทำการคืนค่าเส้นทางที่สั้นที่สุดจากจุดยอดเริ่มต้นsไปยังจุดยอดปลายทางUโดยจะใช้การติดตามค่าตัวชี้ก่อนหน้า(prev)ของจุดยอดที่ได้จากการทำงานของBFS
     //FIX THIS
-    if (U.prev == null) {
+    if (U.prev == null) {//ถ้าจุดยอดUไม่มีตัวชี้ก่อนหน้า(prevเป็นnull)หมายความว่าไม่มีเส้นทางจากSไปUจะทำการพิมพ์ข้อความเเจ้งเตือน เเละคืนค่าStackที่ว่างเปล่า
       System.out.printf("There is no path from %d to %d", S.intKey, U.intKey);
       return new Stack();
     }
       // Create a stack
-      Stack<Vertex> s = new Stack<Vertex>();
+      Stack<Vertex> s = new Stack<Vertex>();//สร้างสเเตกว่างสำหรับเก็บเส้นทางจากจุดยอดปลายทางไปยังจุดยอดเริ่มต้น
       // Start from Vertex U
       // [*] push the current Vertex into the stack
       // Go back one Vertex using U.prev
       // Repeat [*] until you reach the Vertex S
-       while(U != S){
+       while(U != S){//ใช้ลูปเพื่อดันจุดยอดเเต่ละตัวลงในสเเตกจนกระทั่งถึงจุดยอดเริ่มต้นSจากนั้นดันSลงในสเเตก
             s.push(U);
             U = U.prev;
         }
         s.push(S);
       // return the stack
-      return s; // Fix this
+      return s; // Fix this คืนค่าสเเตกที่บรรจุเส้นทางจากจุดยอดปลายทางไปยจุดยอดเริ่มต้น
   }
   
-  public void printShortestPath(int s_index, int u_index){
+  public void printShortestPath(int s_index, int u_index){//ฟังก์ชันนี้ใช้สำหรับพิมพ์เส้นทางที่สั้นที่สุดจากจุดยอดsไปยังจุดยอดu
     
       // Map Vertex names to index numbers
       // Get vertices from the vertexList
-      Vertex s = vertexList[s_index];
+      Vertex s = vertexList[s_index];//ดึงจุดยอดจากvertexListตามอินเด็กซ์ที่กำหนด
       Vertex u = vertexList[u_index];
       // Run BFS() at the starting Vertex
-      BFS(s);
+      BFS(s);//ทำการเรียกใช้BFSโดยมีจุดยอดsเป็นจุดเริ่มต้น
       // Get shortestPartList(starting Vertex, ending Vertex)
-      Stack<Vertex> shortPath = getShortestPathList(s,u);
+      Stack<Vertex> shortPath = getShortestPathList(s,u);//เรียกใช้ฟังก์ชัน getShortestPathList เพื่อดึงเส้นทางที่สั้นที่สุดระหว่างจุดยอด s เเละ u ในรูปเเบบของ Stack
       // Traverse all the stack and print the Vertex name
-      if (!shortPath.isEmpty()) {
+      if (!shortPath.isEmpty()) {//ถ้าสเเตกไม่ว่าง จะทำการดึงจุดยอดจากสเเตกออกมาพิมพ์(เริ่มจากจุดเเรกโดยไม่มีลูกศร->)
         System.out.print(shortPath.pop().strKey); // Print the first vertex without an arrow
         }
       while(!shortPath.isEmpty()){
-            System.out.print(" -> " + shortPath.pop().strKey);
+            System.out.print(" -> " + shortPath.pop().strKey);//จากนั้นพิมพ์เส้นทางโดยใช้ลูกศร->ระหว่างจุดยอดที่ดึงออกมาจากสเเตก
         }
-      System.out.println();
+      System.out.println();//เมื่อพิมพ์ครบเเล้วขึ้นบรรทัดใหม่
   }
     
     
     // This is editable test case, but no need to edit
-    public static Graph constructGraph1(){
+    public static Graph constructGraph1(){//ฟังก์ชันนี้สร้างกราฟที่ประกอบด้วยจุดยอด16จุด โดยใช้คาปาซอตี้32จากนั้นเพิ่มจุดยอดเเต่ละจุดลงในกราฟเเละเชื่อมต่อขอบระหว่าจุดยอดต่างๆ ขอบจะเชื่อมต่อในรูปเเบบสองทาง สุดท้ายจะคืนค่าที่สร้างเสร็จ
         Graph graph = new Graph(32); 
         for (int i=0; i<16; i++)
             graph.addVertex(i);
@@ -189,9 +190,9 @@ public class Graph {
     }
     
     // This is editable test case, but no need to edit
-    public static Graph constructGraph2(){
-        Graph graph = new Graph(32); 
-        for (int i=0; i<16; i++)
+    public static Graph constructGraph2(){//ฟังก์ชันนี้ทำงานคล้ายกับGraph constructGraph1()เเต่จะมีจุดต่างกันเล็กน้อย
+        Graph graph = new Graph(32); //เป็นการสร้างออบเจกต์ของกราฟที่มีขนาดคาปาซิตี้เท่ากับ32จุด เเต่จะใช้จริงเพียง16จุด
+        for (int i=0; i<16; i++)//ลูปนี้ทำงาน16ครั้ง ตั้งเเต่i=0ถึงi=15เพื่อเพิ่มจุดยอดลงในกราฟโดยใช้ฟังก์ชัน addVertex()ซึ่งจะรับค่าหมายเลขi เป็นคีย์ของจุดยอดในเเต่ละรอบ เเต่ละจุดจะมีค่าคียืตามค่าi
             graph.addVertex(i);
         graph.addEdge(0, 1);
         graph.addEdge(0, 5);
@@ -208,6 +209,6 @@ public class Graph {
         graph.addEdge(10, 14);
         graph.addEdge(11, 15);
         graph.addEdge(14, 15);
-        return graph;
+        return graph;//สุดท้ายจะคืนค่าออบเจกซ์graphซึ่งเป็นกราฟที่สร้างเสร็จเเล้วโดยมีจุดยอด16จุดเเละของที่เชื่อมโยงระหว่างจุดยอดตามที่ระบุไว้
     }
 }
